@@ -1,7 +1,13 @@
 import { renderMarkupGallery } from './js/renderMarkupGallery';
 import { fetchPhotos } from './js/fetchPhotos';
+import { smoothScrollToBottom } from './js/smoothScrollToBottom';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import throttle from 'lodash.throttle';
+
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+var lightbox = new SimpleLightbox('.gallery a');
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
@@ -27,7 +33,7 @@ const loadMore = throttle(async () => {
 
   if (documentRect.bottom < document.documentElement.clientHeight + 150) {
     remainder -= PER_PAGE;
-    console.log(remainder);
+    // console.log(remainder);
     if (remainder < 1) {
       window.removeEventListener('scroll', loadMore);
 
@@ -46,6 +52,8 @@ const loadMore = throttle(async () => {
       'beforeend',
       renderMarkupGallery(response.data.hits)
     );
+    smoothScrollToBottom();
+    lightbox.refresh();
   }
 }, 300);
 
@@ -87,9 +95,5 @@ async function onSubmit(e) {
     renderMarkupGallery(response.data.hits)
   );
 
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  console.log('aaa', cardHeight);
+  lightbox.refresh();
 }

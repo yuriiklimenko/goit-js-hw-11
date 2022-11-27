@@ -1,7 +1,7 @@
 export function renderMarkupGallery(photos) {
   return photos
     .map(photo => {
-      return `<div class="photo-card">
+      return `<div class="photo-card" tabindex="1">
               <a class="photo-link" href="${photo.largeImageURL}">
                 <img class="photo-img" src="${photo.webformatURL}" alt="${photo.tags}" loading="lazy" />
                  <div class="info">
@@ -23,6 +23,3 @@ export function renderMarkupGallery(photos) {
     })
     .join('');
 }
-
-// webformatURL - посилання на маленьке зображення для списку карток.
-// largeImageURL - посилання на велике зображення.
