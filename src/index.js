@@ -8,52 +8,13 @@ const gallery = document.querySelector('.gallery');
 const loading = document.querySelector('.loading');
 const submitBtn = document.querySelector('button[type=submit]');
 
-const PER_PAGE = 5;
+const PER_PAGE = 40;
 let value = '';
 let page = 1;
 let remainder = 0;
 
-form.addEventListener('submit', onSubmit);
-window.addEventListener('scroll', throttle(loadMore, 1000));
-
-// --------------------------------
-async function onSubmit(e) {
-  e.preventDefault();
-  value = e.currentTarget.elements.searchQuery.value;
-
-  loading.classList.remove('is-hidden');
-
-  if (value === '') {
-    return Notify.failure('Enter something');
-  }
-
-  gallery.innerHTML = '';
-  submitBtn.disabled = true;
-  page = 1;
-
-  const response = await fetchPhotos(value, page);
-
-  submitBtn.disabled = false;
-
-  if (response.data.hits.length === 0) {
-    Notify.failure('Nothing found ');
-    return;
-  }
-
-  Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
-
-  remainder = response.data.totalHits;
-
-  gallery.insertAdjacentHTML(
-    'beforeend',
-    renderMarkupGallery(response.data.hits)
-  );
-}
-
-// ----------------------------------------------------------
-
-async function loadMore() {
-  // отримуємо у прямокутника кооординати
+const loadMore = throttle(async () => {
+  // отримуємо у прямокутника координати
   const documentRect = document.documentElement.getBoundingClientRect();
 
   //висота(в px) правої нижньої точки(в доному випадку documenta) від верху вьюпорта
@@ -68,7 +29,8 @@ async function loadMore() {
     remainder -= PER_PAGE;
     console.log(remainder);
     if (remainder < 1) {
-      window.removeEventListener('scroll', throttle(loadMore, 1000));
+      window.removeEventListener('scroll', loadMore);
+
       loading.classList.add('is-hidden');
       Notify.warning(
         "We're sorry, but you've reached the end of search results."
@@ -85,4 +47,49 @@ async function loadMore() {
       renderMarkupGallery(response.data.hits)
     );
   }
+}, 300);
+
+form.addEventListener('submit', onSubmit);
+window.addEventListener('scroll', loadMore);
+
+// --------------------------------
+async function onSubmit(e) {
+  e.preventDefault();
+  value = e.currentTarget.elements.searchQuery.value;
+
+  if (value === '') {
+    Notify.failure('Enter something');
+    return;
+  }
+
+  loading.classList.remove('is-hidden');
+
+  gallery.innerHTML = '';
+  submitBtn.disabled = true;
+  page = 1;
+
+  const response = await fetchPhotos(value, page);
+
+  submitBtn.disabled = false;
+
+  if (response.data.hits.length === 0) {
+    Notify.failure('Nothing found ');
+    loading.classList.add('is-hidden');
+    return;
+  }
+
+  Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
+
+  remainder = response.data.totalHits;
+
+  gallery.insertAdjacentHTML(
+    'beforeend',
+    renderMarkupGallery(response.data.hits)
+  );
+
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  console.log('aaa', cardHeight);
 }
