@@ -20,6 +20,8 @@ let page = 1;
 let remainder = 0;
 
 const loadMore = throttle(async () => {
+  loading.classList.remove('is-hidden');
+
   // отримуємо у прямокутника координати
   const documentRect = document.documentElement.getBoundingClientRect();
 
@@ -33,7 +35,7 @@ const loadMore = throttle(async () => {
 
   if (documentRect.bottom < document.documentElement.clientHeight + 150) {
     remainder -= PER_PAGE;
-    // console.log(remainder);
+
     if (remainder < 1) {
       window.removeEventListener('scroll', loadMore);
 
@@ -55,7 +57,10 @@ const loadMore = throttle(async () => {
     smoothScrollToBottom();
     lightbox.refresh();
   }
+
+  loading.classList.add('is-hidden');
 }, 300);
+// --------------------------------------------
 
 form.addEventListener('submit', onSubmit);
 window.addEventListener('scroll', loadMore);
@@ -81,7 +86,9 @@ async function onSubmit(e) {
   submitBtn.disabled = false;
 
   if (response.data.hits.length === 0) {
-    Notify.failure('Nothing found ');
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
     loading.classList.add('is-hidden');
     return;
   }
@@ -95,5 +102,6 @@ async function onSubmit(e) {
     renderMarkupGallery(response.data.hits)
   );
 
+  loading.classList.add('is-hidden');
   lightbox.refresh();
 }
