@@ -23,7 +23,7 @@
 const axios = require('axios').default;
 
 export async function fetchPhotos(searchQuery, page) {
-  const BASE_LINK = 'https://pixabay.com/api';
+  const BASE_LINK = 'https://pixabay.com/api/';
 
   const KEY = '30733564-741f3ed68786028815fba657d';
 
